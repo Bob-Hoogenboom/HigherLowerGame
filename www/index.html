@@ -38,19 +38,21 @@
     </head>
     <body>
         <div class="app">
+            <div id="session_response">
+                <!-- Javascriipt will display pong here if ping has been correctly innitialized-->
+            </div>
+
+            <div class="card-container">
+                <img id="card" src="img\CardsMisc\card_back.png" alt="AAAHHHHHHH">
+            </div>
+            <button id="drawCardBtn">Draw a Random Card</button>
+
             <h1>Apache Cordova</h1>
             <div id="deviceready" class="blink">
                 <p class="event listening">Connecting to Device</p>
                 <p class="event received">Device is Ready</p>
             </div>
             
-            <div id="session_response">
-                <div class="card-container">
-                    <img id="card" src="" alt="Playing Card">
-                </div>
-                <button id="drawCardBtn">Draw a Random Card</button>
-                <!-- Javascriipt will display pong here if ping has been correctly innitialized-->
-            </div>
         </div>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>

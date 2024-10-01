@@ -19,19 +19,30 @@
 
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
-//Game Functions:
-document.getElementById("drawCardBtn").addEventListener("click", displayRandomCard);
 
-
+// > Game Functions: <
 // Array of card filenames (assuming they are in a folder called 'cards')
+let cards;
+
+document.addEventListener("DOMContentLoaded", function() {
+        // Fetch the card paths from the JSON file
+        fetch('../json/cards.json')
+            .then(response => response.json()) // Convert the file content to a JavaScript object
+            .then(data => {
+                cards = data.cards; // Access the array of card paths
+                console.log(cards); // Debugging: see if the paths were loaded correctly
+                
+                // Add event listener to the button
+                document.getElementById("drawCardBtn").addEventListener("click", function() {
+                    displayRandomCard(cards); // Pass the card array to the display function
+                });
+            })
+            .catch(error => {
+                console.error("Error loading card paths:", error);
+            });
+    });
+
 function displayRandomCard() {
-const cards = [
-        "CardsClub/card_clubs_02.png", // ...add all club cards
-        "CardsDiamond/card_diamonds_02.png", // add all diamond cards
-        "CardsHeart/card_hearts_02.png", // add all heart cards
-        "CardsSpade/card_spades_02.png" // add all spade cards
-    ];
-    
     // Function to display a random card
         const cardImage = document.getElementById("card");
         
@@ -39,10 +50,12 @@ const cards = [
         const randomIndex = Math.floor(Math.random() * cards.length);
         
         // Set the image source to the randomly chosen card
-        cardImage.src = "../img/" + cards[randomIndex];
+        cardImage.src = "../img/Cards/" + cards[randomIndex];
         console.log(cardImage.src);
 }
 
+
+// > cordova <
 document.addEventListener('deviceready', onDeviceReady, false);
 function onDeviceReady() 
 {
