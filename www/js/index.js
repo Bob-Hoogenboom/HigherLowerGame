@@ -1,22 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 
@@ -57,6 +38,20 @@ function displayRandomCard() {
 
 // > cordova <
 document.addEventListener('deviceready', onDeviceReady, false);
+
+//Session Variables
+let sessionID; //stores ID of the session
+let whenJoined; // stores who joined first
+let currentTurn; // stores who's turn it is
+let gameOver;
+var gameState;
+var serverState;
+
+let turnRandomCard = 0;
+let turnGuessCard = 0;
+let turnHigherLower = 0;
+let TurnGuessCardAgain = 0;
+
 function onDeviceReady() 
 {
     // Cordova is now initialized. Have fun!
@@ -65,35 +60,89 @@ function onDeviceReady()
     document.getElementById('deviceready').classList.add('ready');
     
     cordova.plugin.http.get('https://appdev.creat.li/ping',
-    {}, {},
-    function (response) {
-        document.getElementById('session_response').innerHTML = response.data;
-        console.log(response.status, response.data);
+        {}, {},
+        function (response) {
+            document.getElementById('session_response').innerHTML = response.data;
+            console.log(response.status, response.data);
+        },
+        function (response) {
+            console.error(response.error);
+        });
+        
+        document.addEventListener('pause', onPause);
+        document.addEventListener('resume', onResume);
+        
+    }
+    
+    function onPause() 
+    { 
+        //save game
+    }
+    
+    function onResume() 
+    { 
+        //load game
+    }
+
+    function onClickHandler(){
+        cordova.plugin.http.get('https://appdev.creat.li/ping',
+            {}, {},
+            function (response) {
+                //document.getElementById('session_response').innerHTML = response.data;
+                console.log(response.status, response.data);
+            },
+            function (response) {
+                console.error(response.error);
+            });
+    }
+
+    function onStartSession(){
+
+
+        cordova.plugin.http.get('https://appdev.creat.li/session/begin', 
+            {}, {}, 
+              
+                function(response) {
+                    console.log(response.status, response.data);
+                    sessionId = response.data;                    
+ 
+                    whenJoined = "first";
+                    currentTurn = "second";
+
+                    
+            gameState = {
+                "turn_1" : turnRandomCard, "turn_2" : turnGuessCard, "turn_3" : turnHigherLower, "turn_4" : TurnGuessCardAgain, 
+                "currentTurn" : currentTurn , "gameOver" : gameOver, 
+            };
+
+            //doesn't work yet
+            cordova.plugin.http.put('https://appdev.creat.li/session/' + sessionID + '?who=' + whenJoined + '', {
+                "turn" : currentTurn,
+                "joined" : whenJoined,
+                "state" : gameState
+            }, {},
+            function(response){
+                console.log(response.status, response.data);
+                serverState = JSON.parse(response.data);
+
+                document.getElementById('continue_bttn').hidden = false;
+            },
+            function(error){
+                document.getElementById('tryagain_bttn').hidden = false;
+            }
+
+        );
     },
-    function (response) {
-        console.error(response.error);
+    function(error){
+        console.log(error);
+        document.getElementById('tryagain_btn').hidden = false;
     });
 
-    
+    document.getElementById('continue_btn').addEventListener('click', startGame);
+
+    document.getElementById('continue_btn').addEventListener('click', onStartSession);
+
 }
 
-cordova.plugin.http.get('https://google.com/', {
-        id: '12',
-        message: 'test'
-      }, { Authorization: 'OAuth2: token' }, function(response) {
-        console.log(response.status);
-      }, function(response) {
-        console.error(response.error);
-      });
 
-document.addEventListener('pause', onPause);
-function onPause() 
-{ 
-    document.getElementById('Pausable') 
-}
 
-document.addEventListener('resume', onResume);
-function onResume() 
-{ 
-    document.getElementById('Resumable') 
-}
