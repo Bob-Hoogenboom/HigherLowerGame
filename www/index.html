@@ -38,20 +38,74 @@
     </head>
     <body>
         <div class="app">
-            <!-- <div id="session_response">
-                 Javascript will display pong here if ping has been correctly innitialized
-            </div> -->
+            <section id ="init" style="display: block">
+                <div id="startsession" class="centered">
+                    <div>
+                        <button class="default-button" id="btn_start">Start Session</button>
+                    </div>
+                </div>
 
-            <div class="card-container">
-                <img id="card" src="img\CardsMisc\card_back.png" alt="AAAHHHHHHH">
-            </div>
-            <button id="drawCardBtn">Draw a Random Card</button>
+                <div id="joinsession" class="centered">
+                    <div>
+                        <input id="input_sessionid" type="text" placeholder="Session ID" size="8">
+                    </div>
+                    <div>
+                        <button class="default-button" id="btn_join">Join Session</button>
+                    </div>
+                </div>
+            </section>
 
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
+
+            <section id="game" style="display: none">
+                <div>
+                    <!--#1 pick a card player 'first'-->
+                    <section id="random-card">
+                        <div class="centered">
+                            <img id="card" src="img\CardsMisc\card_back.png" alt="AAAHHHHHHH">
+                        </div>
+                        <div class="centered">
+                            <button class="default-button" id="drawCardBtn">Draw Card</button>
+                        </div>
+
+                        <div class="centered">
+                            <button class="default-button" id="btn_submit">Submit</button>
+                        </div>
+                    </section>
+
+                    <!--#2 pick a card player 'second'-->
+                    <!--#4 pick a card again player 'second'-->
+                    <section id="choose-card" style="display: none">
+                        <div class="centered">
+                            <!--button 2 till ace-->
+                            <img id="card" src="img\CardsMisc\card_back.png" alt="AAAHHHHHHH">
+                        </div>
+                        <!--Submit button?-->
+                    </section>
+
+                    <!--#3 pick higher/lower player 'first'-->
+                    <section id="higher-lower" style="display: none">
+                        <div class="centered">
+                            <!--button higher and button lower-->
+                        </div>
+                        <!--Submit button?-->
+                    </section>
+
+            
+                    <div class="centered">
+                        <button class="default-button" id="btn_end">End Session</button>
+                    </div>
+
+                    <div class="session-block">
+                        <div class="divider-left">
+                            <img id="divider-left" src="img/UI/DividerFadeL.png">
+                        </div>
+                        <br>
+                    <div id="deviceready">
+                        <h1 >Session ID: </h1>
+                        <p id="session-id"></p>
+                    </div>
+                </div>
+            </section>
             
         </div>
         <script src="cordova.js"></script>

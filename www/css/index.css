@@ -17,6 +17,7 @@
  * under the License.
  */
 * {
+    box-sizing: border-box; /* Ensures padding/margins don't break layout */
     -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
 }
 
@@ -35,20 +36,14 @@ body {
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     text-transform:uppercase;
     width:100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Portrait layout (default) */
 .app {
-    /*background:url(../img/logo.png) no-repeat center top;  170px x 200px */
-    position:absolute;             /* position in the center of the screen */
-    left:50%;
-    top:50%;
-    height:50px;                   /* text area height */
-    width:225px;                   /* text area width */
-    text-align:center;
-    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
-    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
-                                   /* offset horizontal: half of text area width */
+
 }
 
 /* Landscape layout (with min-width) */
@@ -71,7 +66,7 @@ h1 {
 }
 
 .event {
-    border-radius:4px;
+    border-radius:20px;
     color:#FFFFFF;
     font-size:12px;
     margin:0px 30px;
@@ -88,6 +83,110 @@ h1 {
     display:none;
 }
 
+
+@media screen and (prefers-color-scheme: dark) {
+    body {
+        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
+    }
+}
+
+.centered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    width: 100%;  /* Full width */
+}
+
+.movelist {
+    font-size: large;
+    padding: 0 20px 0 20px;
+    color: yellowgreen;
+}
+
+.default-button {
+    image-rendering: pixelated;
+    padding: 24px;                               /* Adds space inside the button */
+    background-color: transparent;              /* Makes the default button background transparent */
+    background-image: url('../img/UI/Button.png'); /* Specifies the semi-transparent image for the button */
+    background-size: contain;                   /* Ensures the entire image fits within the button without being cropped */
+    background-repeat: no-repeat;               /* Prevents the image from repeating */
+    background-position: center;                /* Centers the image inside the button */
+    background-blend-mode: normal;              /* Specifies how the background image and background color combine (optional) */
+    border: none;                               /* Removes the default border around the button */
+    font-size: 18px;                            /* Sets the font size of the button text */
+    color: rgb(0, 0, 0);                      /* Color of the text  */
+    font-weight: bold;                          /* Makes the text bold for better readability */
+    width: 300px;                                /* Makes the button take up the full width of its parent container */
+    max-width: 80%;                           /* Limits the button width to a maximum of 300px */
+    margin: 0 auto;                             /* Centers the button horizontally */
+    transition: background-color 0.3s;          /* Smoothly transitions the background color when the button is hovered */
+    text-align: center;                         /* Centers the text horizontally */
+    display: flex;                              /* Uses Flexbox to center content (text) inside the button */
+    align-items: center;                        /* Vertically centers the text */
+    justify-content: center;                    /* Horizontally centers the text */
+}
+
+
+@media screen and (prefers-color-scheme: dark) {
+    body {
+        background-image: linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
+    }
+}
+
+img {
+    max-width: 80%;
+    height: auto;
+}
+
+
+/* javascript Feedback*/
+.session-block {
+    position: fixed;   /* Sticks the div to a fixed position on the screen */
+    bottom: 0; 
+    left: 0;        /* Aligns the div to the bottom */
+    background-image: url('../img/UI/BottomBorder.png'); 
+    width: 100vw;
+    height: auto; 
+    color: rgb(255, 255, 255);      /* Text color */
+    text-align: center; 
+    display: flex; /* Use flexbox for vertical alignment */
+    justify-content: center;
+    flex-direction: column;
+}
+
+.divider-left{
+    position: fixed;   /* Sticks the div to a fixed position on the screen */
+    vertical-align: middle;
+    float: left;
+    background-repeat: no-repeat;
+    text-align-last: left;
+}
+
+.divider-right{
+    position: fixed;   /* Sticks the div to a fixed position on the screen */
+    vertical-align: middle;
+    float: right;
+    background-repeat: no-repeat;
+    text-align-last: right;
+}
+
+
+/* Cordova CSS */
+.cordova-block {
+    position: fixed;   /* Sticks the div to a fixed position on the screen */
+    bottom: 0;         /* Aligns the div to the bottom */
+    left: 0;           /* Aligns the div to the left */
+    background-color: #5f5f5f;  /* Background color (optional) */
+    color: rgb(0, 0, 0);      /* Text color */
+    padding: 20px;
+    width: auto; 
+    text-align: center; 
+}
+
+/* specifically for the cordova connect device ready button*/
 #deviceready.ready .event.listening { display: none; }
 #deviceready.ready .event.received { display: block; }
 
@@ -103,14 +202,7 @@ h1 {
 }
 
 
-@media screen and (prefers-color-scheme: dark) {
-    body {
-        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
-    }
-}
-
-/* Game CSS: */
-
+/* FUCK THE DEALER CSS: */
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -119,20 +211,27 @@ body {
     justify-content: center;
     height: 100vh;
     margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
-.card-container {
+input {
+    padding: 10px 15px;
+    margin: 10px 25px;
+    border-color: #FFFFFF;
+    font-size: large;
+}
+
+/* .card-container {
     margin: 20px;
     image-rendering: pixelated;
-}
+    width: 100%;
+} */
 
 img {
     width: 150px;
     height: auto;
+    image-rendering: pixelated;
 }
 
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
+
