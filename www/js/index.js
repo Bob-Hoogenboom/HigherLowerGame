@@ -1,7 +1,14 @@
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 
+var gameState;
 
+let screen1 = 0;
+let screen2 = 0;
+let screen3 = 0;
+let screen4 = 0;
+let guessedRight = 0;
+let guessedWrong = 0;
 
 // > cordova <
 document.addEventListener('deviceready', onDeviceReady, false);
@@ -23,7 +30,7 @@ function onDeviceReady() {
 
 function initGame() {
     const sessionId = window.localStorage.getItem('sessionId');
-    console.log(`stored sessionId=${sessionId}`);
+
 
     if (!sessionId) { // hebben we nog geen sessie?
         SetStateMenu();
@@ -35,12 +42,21 @@ function initGame() {
 
 function SetStateMenu() {
     document.getElementById('init').style.display = 'block';
-    document.getElementById('game').style.display = 'none';
+    document.getElementById('game').style.display = 'none'; 
+    //reset al de game blocks V
+    document.getElementById('random-card').style.display = 'none'; 
+
 }
 
 function setStatePlayGame() {
     document.getElementById('init').style.display = 'none';
     document.getElementById('game').style.display = 'block';
+    if(window.localStorage.getItem('whoami') === 'first'){
+        document.getElementById('random-card').style.display = 'block';
+    }
+    else if(window.localStorage.getItem('whoami') === 'first'){
+        document.getElementById('wait').style.display = 'block';
+    }
 }
 
 function clickedStartSession(ev) {
@@ -55,6 +71,11 @@ function clickedStartSession(ev) {
 
                 window.localStorage.setItem('sessionId', sessionId);
                 window.localStorage.setItem('whoami', 'first');
+
+                gameState = {
+                    "turn1" : screen1, "turn2" : screen2, "turn3" : screen3, "turn4" : screen4, 
+                    "guessed" : guessedRight, "guessedWrong" : guessedWrong
+                };
 
                 //duplicate code in join and start sesh
                 if (sessionId) {
@@ -103,19 +124,29 @@ function clickedJoinSession(ev) {
 
 function clickedEndSession(event) {
     const sessionId = window.localStorage.getItem('sessionId');
-    cordova.plugin.http.get(`https://appdev.creat.li/session/end/${sessionId}`,
-        {}, {},
-        function (response) {
-            console.log(response.status, response.data);
-            window.localStorage.removeItem('sessionId');
-            window.localStorage.removeItem('whoami');
+
+    if (sessionId) {
+        cordova.plugin.http.get(`https://appdev.creat.li/session/end/${sessionId}`,
+            {}, {},
+            function (response) {
+                console.log(response.status, response.data);
+                window.localStorage.removeItem('sessionId');
+                window.localStorage.removeItem('whoami');
+                console.log("LocalStorage after removal:", window.localStorage.getItem('sessionId'), window.localStorage.getItem('whoami'));
+                
+                
+
+            // Call SetStateMenu only after the items have been removed
+            SetStateMenu();
         },
         function (error) {
             console.log(error);
         }
     );
-
-    SetStateMenu();
+    } else {
+        console.log("No sessionId found in localStorage.");
+        SetStateMenu(); // Fallback to menu if no sessionId found
+    }
 }
 
 function clickedDoMove(event) {
@@ -132,8 +163,8 @@ function clickedDoMove(event) {
 
             // doe iets met de gamestate (dit is dus maar een voorbeeldje!)
             if (!gameState.moves) gameState.moves = [];
-            gameState.moves.push("move" + gameState.moves.length);
-            gameState.score = Math.floor(Math.random() * 100);
+            gameState.moves.push("gameTurn" + gameState.moves.length);
+            console.log(gameState + " " + gameState.moves);
 
             // en stuur de nieuwe state terug
             cordova.plugin.http.setDataSerializer('json');
@@ -159,9 +190,13 @@ function clickedDoMove(event) {
 }
 
 
-let cards;
 
 // > Game Functions: <
+
+
+
+let cards;
+
 // Array of card filenames (assuming they are in a folder called 'cards')
 document.addEventListener("DOMContentLoaded", function() {
         // Fetch the card paths from the JSON file
@@ -185,28 +220,19 @@ document.addEventListener("DOMContentLoaded", function() {
 function displayRandomCard() {
 
 
-    // Function to display a random card
-        const cardImage = document.getElementById("card");
-        
         // Generate a random index from 0 to 51 (assuming 52 cards)
         const randomIndex = Math.floor(Math.random() * cards.length);
-        
-        // Set the image source to the randomly chosen card
-        cardImage.src = "../img/Cards/" + cards[randomIndex];
-        console.log(cardImage.src);
+        const randomCard = cards[randomIndex];
+
+        console.log(`Card Image: ${randomCard.image}`);
+        console.log(`Card Value: ${randomCard.value}`);
+
+        // Set the random card to the HTML block
+        document.getElementById("card").src = "../img/Cards/" + randomCard.image;
 }
 
 
 function displayGame(state) {
 
-    document.getElementById('session-id').innerText = `Session ID: ${state}`;
-    // Function to display a random card
-        const cardImage = document.getElementById("card");
-        
-        // Generate a random index from 0 to 51 (assuming 52 cards)
-        const randomIndex = Math.floor(Math.random() * cards.length);
-        
-        // Set the image source to the randomly chosen card
-        cardImage.src = "../img/Cards/" + cards[randomIndex];
-        console.log(cardImage.src);
+    
 }

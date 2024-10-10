@@ -57,9 +57,10 @@
 
 
             <section id="game" style="display: none">
-                <div>
-                    <!--#1 pick a card player 'first'-->
-                    <section id="random-card">
+                
+                <!--#1 pick a card player 'first'-->
+                <section id="random-card" style="display: none">
+                    <div>
                         <div class="centered">
                             <img id="card" src="img\CardsMisc\card_back.png" alt="AAAHHHHHHH">
                         </div>
@@ -70,28 +71,25 @@
                         <div class="centered">
                             <button class="default-button" id="btn_submit">Submit</button>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
                     <!--#2 pick a card player 'second'-->
                     <!--#4 pick a card again player 'second'-->
-                    <section id="choose-card" style="display: none">
-                        <div class="centered">
-                            <!--button 2 till ace-->
-                            <img id="card" src="img\CardsMisc\card_back.png" alt="AAAHHHHHHH">
-                        </div>
-                        <!--Submit button?-->
-                    </section>
+                    
 
                     <!--#3 pick higher/lower player 'first'-->
-                    <section id="higher-lower" style="display: none">
-                        <div class="centered">
-                            <!--button higher and button lower-->
-                        </div>
-                        <!--Submit button?-->
-                    </section>
+                    
 
+                <section id="wait" style="display: none;">
+                    <div>
+                        <div class="centered">
+                            <h1>Wait for other player</h1>
+                        </div>
+                    </div>
+                </section>
             
-                    <div class="centered">
+                    <div class="centered" >
                         <button class="default-button" id="btn_end">End Session</button>
                     </div>
 
@@ -104,7 +102,6 @@
                         <h1 >Session ID: </h1>
                         <p id="session-id"></p>
                     </div>
-                </div>
             </section>
             
         </div>
