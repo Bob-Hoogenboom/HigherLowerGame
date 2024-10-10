@@ -1,14 +1,15 @@
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 
-var gameState;
+const GAME_STATES = {
+    SCREEN1: 0,
+    SCREEN2: 1,
+    SCREEN3: 2,
+    SCREEN4: 3,
+    FINISHED: 4 // To represent when the game ends
+};
 
-let screen1 = 0;
-let screen2 = 0;
-let screen3 = 0;
-let screen4 = 0;
-let guessedRight = 0;
-let guessedWrong = 0;
+var gameState = GAME_STATES.SCREEN1; // Initial state
 
 // > cordova <
 document.addEventListener('deviceready', onDeviceReady, false);
@@ -22,9 +23,9 @@ function connectButtons() {
 
 function onDeviceReady() {
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-
+    
+    //restart game/session/application UI function?
     connectButtons();
-
     initGame();
 }
 
@@ -36,13 +37,13 @@ function initGame() {
         SetStateMenu();
     } else { // sessie bestond al, hervat spel
         setStatePlayGame();
-
     }
 }
 
 function SetStateMenu() {
     document.getElementById('init').style.display = 'block';
     document.getElementById('game').style.display = 'none'; 
+    gameState = 0;
     //reset al de game blocks V
     document.getElementById('random-card').style.display = 'none'; 
 
@@ -51,12 +52,13 @@ function SetStateMenu() {
 function setStatePlayGame() {
     document.getElementById('init').style.display = 'none';
     document.getElementById('game').style.display = 'block';
-    if(window.localStorage.getItem('whoami') === 'first'){
-        document.getElementById('random-card').style.display = 'block';
-    }
-    else if(window.localStorage.getItem('whoami') === 'first'){
-        document.getElementById('wait').style.display = 'block';
-    }
+
+    // Make sure the gameState is passed correctly
+    console.log("Current Game State:", gameState);
+    
+    // clickDoMove will handle the first panel
+    clickedDoMove();
+    
 }
 
 function clickedStartSession(ev) {
@@ -72,18 +74,12 @@ function clickedStartSession(ev) {
                 window.localStorage.setItem('sessionId', sessionId);
                 window.localStorage.setItem('whoami', 'first');
 
-                gameState = {
-                    "turn1" : screen1, "turn2" : screen2, "turn3" : screen3, "turn4" : screen4, 
-                    "guessed" : guessedRight, "guessedWrong" : guessedWrong
-                };
 
-                //duplicate code in join and start sesh
-                if (sessionId) {
-                    document.getElementById('session-id').innerText = `Session ID: ${sessionId}`;
-                } else {
-                    document.getElementById('session-id').innerText = "Session ID not found";
-                }
-
+                // Set the session ID and update the UI
+                document.getElementById('session-id').innerText = `Session ID: ${sessionId}`;
+                
+                // Initialize the game and display the correct game state
+                gameState = GAME_STATES.SCREEN1;
                 setStatePlayGame();
             }
         },
@@ -107,11 +103,7 @@ function clickedJoinSession(ev) {
                 window.localStorage.setItem('whoami', 'second');
 
                 //duplicate code in join and start sesh
-                if (sessionId) {
-                    document.getElementById('session-id').innerText = `Session ID: ${sessionId}`;
-                } else {
-                    document.getElementById('session-id').innerText = "Session ID not found";
-                }
+                document.getElementById('session-id').innerText = `Session ID: ${sessionId}`;
 
                 setStatePlayGame();
             }
@@ -132,6 +124,7 @@ function clickedEndSession(event) {
                 console.log(response.status, response.data);
                 window.localStorage.removeItem('sessionId');
                 window.localStorage.removeItem('whoami');
+
                 console.log("LocalStorage after removal:", window.localStorage.getItem('sessionId'), window.localStorage.getItem('whoami'));
                 
                 
@@ -159,29 +152,55 @@ function clickedDoMove(event) {
             let session = JSON.parse(response.data);
             console.log(session);
 
-            let gameState = session.state || {};
+            // Ensure gameState is correctly updated and passed to displayGame
+            displayGame({ gameState: gameState });
 
-            // doe iets met de gamestate (dit is dus maar een voorbeeldje!)
-            if (!gameState.moves) gameState.moves = [];
-            gameState.moves.push("gameTurn" + gameState.moves.length);
-            console.log(gameState + " " + gameState.moves);
+            // Handle game state transition logic here
+            switch (gameState) {
+                case GAME_STATES.SCREEN1:
+                    console.log("Game is in SCREEN1 state.");
+                    // Update gameState or any variables based on the logic for SCREEN1
+                    // Example: Proceed to SCREEN2
+                    gameState = GAME_STATES.SCREEN2;
+                    break;
+                
+                case GAME_STATES.SCREEN2:
+                    console.log("Game is in SCREEN2 state.");
+                    // Update logic for SCREEN2
+                    gameState = GAME_STATES.SCREEN3;
+                    break;
+                
+                case GAME_STATES.SCREEN3:
+                    console.log("Game is in SCREEN3 state.");
+                    gameState = GAME_STATES.SCREEN4;
+                    break;
+                
+                case GAME_STATES.SCREEN4:
+                    console.log("Game is in SCREEN4 state.");
+                    // End the game or reset state, or proceed further
+                    gameState = GAME_STATES.FINISHED;
+                    break;
 
-            // en stuur de nieuwe state terug
+                case GAME_STATES.FINISHED:
+                    console.log("Game is finished.");
+                    // Handle the game-over state or reset
+                    break;
+            }
+
+            // Optional: Push the new state to the session
+            session.state.gameState = gameState;
+
             cordova.plugin.http.setDataSerializer('json');
-            cordova.plugin.http.put('https://appdev.creat.li/session/' + sessionId + '?who=' + who + '',
-                { "state": gameState },
+            cordova.plugin.http.put('https://appdev.creat.li/session/' + sessionId + '?who=' + who,
+                { "state": session.state },
                 { 'content-type': 'application/json' },
                 function (response) {
                     console.log(response.status, response.data);
-                    // response.data is een text-string - maak er een JSON object van
-                    const session = JSON.parse(response.data);
-                    displayGame(session.state);
                 },
                 function (error) {
                     console.log(error);
                 }
             );
-
         },
         function (error) {
             console.log(error);
@@ -192,8 +211,6 @@ function clickedDoMove(event) {
 
 
 // > Game Functions: <
-
-
 
 let cards;
 
@@ -219,7 +236,6 @@ document.addEventListener("DOMContentLoaded", function() {
     //will be removed in favor of updating the game at the bottom*
 function displayRandomCard() {
 
-
         // Generate a random index from 0 to 51 (assuming 52 cards)
         const randomIndex = Math.floor(Math.random() * cards.length);
         const randomCard = cards[randomIndex];
@@ -233,6 +249,45 @@ function displayRandomCard() {
 
 
 function displayGame(state) {
+    switch (state.gameState) {
+        case GAME_STATES.SCREEN1:
+            //whoami: "first" random card screen
+            //whoami: "second" wait
+            if(window.localStorage.getItem('whoami') === 'first'){
+                document.getElementById('random-card').style.display = 'block';
+            }
+            else if(window.localStorage.getItem('whoami') === 'second'){
+                document.getElementById('wait').style.display = 'block';
+            }
+            console.log("Displaying SCREEN1 elements");
+            break;
 
-    
+        case GAME_STATES.SCREEN2:
+            if(window.localStorage.getItem('whoami') === 'first'){
+                document.getElementById('random-card').style.display = 'none';
+                document.getElementById('random-card').style.display = 'wait';
+            }
+            //whoami: "first" wait
+            //whoami: "second" pick a card 
+            console.log("Displaying SCREEN2 elements");
+            break;
+
+        case GAME_STATES.SCREEN3:
+            //whoami: "first" higher lower
+            //whoami: "second" wait
+            console.log("Displaying SCREEN3 elements");
+            break;
+
+        case GAME_STATES.SCREEN4:
+            //whoami: "first" wait
+            //whoami: "second" pick a card 
+            console.log("Displaying SCREEN4 elements");
+            break;
+
+        case GAME_STATES.FINISHED:
+            // Finish
+            //Card is guessed or Card is not guessed
+            console.log("Game Finished. Display final screen.");
+            break;
+    }
 }
