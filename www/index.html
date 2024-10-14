@@ -78,17 +78,47 @@
                     <!--#4 pick a card again player 'second'-->
                 <section id="pick-a-card" style="display: none">
                     <div>
-                        <h1>Pick A Card</h1>
+                        <div id="card-selection">
+                            <img src="img/Cards/hearts_02.png" class="card-btn" data-value="2" alt="2 of Hearts" />
+                            <img src="img/Cards/hearts_03.png" class="card-btn" data-value="3" alt="3 of Hearts" />
+                            <img src="img/Cards/hearts_04.png" class="card-btn" data-value="4" alt="4 of Hearts" />
+                            <img src="img/Cards/hearts_05.png" class="card-btn" data-value="5" alt="5 of Hearts" />
+                            <img src="img/Cards/hearts_06.png" class="card-btn" data-value="6" alt="6 of Hearts" />
+                            <img src="img/Cards/hearts_07.png" class="card-btn" data-value="7" alt="7 of Hearts" />
+                            <img src="img/Cards/hearts_08.png" class="card-btn" data-value="8" alt="8 of Hearts" />
+                            <img src="img/Cards/hearts_09.png" class="card-btn" data-value="9" alt="9 of Hearts" />
+                            <img src="img/Cards/hearts_10.png" class="card-btn" data-value="10" alt="10 of Hearts" />
+                            <img src="img/Cards/hearts_J.png" class="card-btn" data-value="11" alt="Jack of Hearts" />
+                            <img src="img/Cards/hearts_Q.png" class="card-btn" data-value="12" alt="Queen of Hearts" />
+                            <img src="img/Cards/hearts_K.png" class="card-btn" data-value="13" alt="King of Hearts" />
+                            <img src="img/Cards/hearts_A.png" class="card-btn" data-value="14" alt="Ace of Hearts" />
+                        </div>
+                        
+                        <div class="centered">
+                            <button class="default-button" id="btn_submit">Submit</button>
+                        </div>
                     </div>
                 </section>
                     
 
-                    <!--#3 pick higher/lower player 'first'-->
+                    <!--#3 say higher/lower player 'first'-->
+                    <section id="higher-lower" style="display: none">
+                        <div>
+                            <h1>Tell the other player if the card is Higher or Lower then your card</h1>
+
+                            <h1>Your card: </h1>
+                            <p id="player1-card"></p>
+
+                            <h1>Player 2's card: </h1>
+                            <p id="player2-card"></p>
+                        </div>
+                    </section>
 
                     <!--#5 finished-->
                     <section id="finished" style="display: none">
                         <div>
-                            <h1>Pick A Card</h1>
+                            <h1>The correct card was: </h1>
+                            <p id="player1-card"></p>
                         </div>
                     </section>
                     

@@ -42,7 +42,7 @@ function checkGameState() {
         function (response) {
             console.log(response.status, response.data); //response log
             session = JSON.parse(response.data);
-            console.log(session);                       //session log
+            //console.log(session);                       //session log
             
             if (session.state.gameState !== gameState ) {
                 gameState = session.state.gameState;
@@ -224,9 +224,13 @@ function clickedDoMove(event) {
                 
                 case GAME_STATES.SCREEN2:
                     console.log("Game is in SCREEN2 state.");
-                    // Update logic for SCREEN2
-
-                    gameState = GAME_STATES.SCREEN3;
+                    if(session.state.cardGuessValue === session.state.cardValue){
+                        console.log("GERADEN!");
+                        gameState = GAME_STATES.FINISHED;
+                    }else{
+                        gameState = GAME_STATES.SCREEN3;
+                        console.log("Doe nog een gokje");
+                    }
                     break;
                 
                 case GAME_STATES.SCREEN3:
@@ -277,6 +281,7 @@ function clickedDoMove(event) {
 // > Game Functions: <
 
 let cards;
+let selectedCardValue; 
 
 // Array of card filenames (assuming they are in a folder called 'cards')
 document.addEventListener("DOMContentLoaded", function() {
@@ -297,26 +302,107 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 
-    //will be removed in favor of updating the game at the bottom*
+        //will be removed in favor of updating the game at the bottom*
 function displayRandomCard() {
 
-        // Generate a random index from 0 to 51 (assuming 52 cards)
-        const randomIndex = Math.floor(Math.random() * cards.length);
-        const randomCard = cards[randomIndex];
+    // Generate a random index from 0 to 51 (assuming 52 cards)
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    const randomCard = cards[randomIndex];
 
-        console.log(`Card Image: ${randomCard.image}`);
-        console.log(`Card Value: ${randomCard.value}`);
+    console.log(`Card Image: ${randomCard.image}`);
+    console.log(`Card Value: ${randomCard.value}`);
 
-        // Set the random card to the HTML block
-        document.getElementById("card").src = "../img/Cards/" + randomCard.image;
+    selectedCardValue = randomCard.value;
+    // Set the random card to the HTML block
+    document.getElementById("card").src = "../img/Cards/" + randomCard.image;
 }
+
+//save player 1's card to session
+function saveCardValueToSession() {
+let sessionId = window.localStorage.getItem('sessionId');
+let who = window.localStorage.getItem('whoami');
+
+cordova.plugin.http.get('https://appdev.creat.li/session/get/' + sessionId, {}, {},
+    function(response) {
+        let session = JSON.parse(response.data);
+
+        document.getElementById('player1-card').innerText = "You selected: " + selectedCardValue;
+
+        // Save the selected card value (from global variable or localStorage)
+        session.state.cardValue = selectedCardValue; 
+
+        // Push the updated session state to the server
+        cordova.plugin.http.setDataSerializer('json');
+        cordova.plugin.http.put('https://appdev.creat.li/session/' + sessionId + '?who=' + who,
+            { "state": session.state },
+            { 'content-type': 'application/json' },
+            function(response) {
+                console.log(response.status, response.data);
+            },
+            function(error) {
+                console.log(error);
+            }
+        );
+    },
+    function(error) {
+        console.log(error);
+    }
+);
+}
+
+//player2 card guess
+document.addEventListener('DOMContentLoaded', function() {
+    let cardImages = document.querySelectorAll('.card-btn');
+    
+    cardImages.forEach(image => {
+        image.addEventListener('click', function() {
+            var cardGuess = this.getAttribute('data-value');
+            console.log("Selected Card Value:", cardGuess);
+            
+            // Display the selected card to Player 2
+            document.getElementById('player2-card').innerText = "You selected: " + cardGuess;
+
+            // Save this value to the session state
+            let sessionId = window.localStorage.getItem('sessionId');
+            let who = window.localStorage.getItem('whoami');
+
+            // Fetch session data and update with card selection
+            cordova.plugin.http.get('https://appdev.creat.li/session/get/' + sessionId, {}, {},
+                function(response) {
+                    let session = JSON.parse(response.data);
+
+                    // Save the selected card value for Player 2
+                    session.state.cardGuessValue = cardGuess;
+
+                    
+                    // Push the updated session state to the server
+                    cordova.plugin.http.setDataSerializer('json');
+                    cordova.plugin.http.put('https://appdev.creat.li/session/' + sessionId + '?who=' + who,
+                        { "state": session.state },
+                        { 'content-type': 'application/json' },
+                        function(response) {
+                            console.log(response.status, response.data);
+                        },
+                        function(error) {
+                            console.log(error);
+                        }
+                    );
+                    clickedDoMove();
+                },
+                function(error) {
+                    console.log(error);
+                }
+            );
+        });
+    });
+});
 
 
 function displayGame(state) {
     switch (state.gameState) {
+        //whoami: "first" random card screen
+        //whoami: "second" wait
         case GAME_STATES.SCREEN1:
-            //whoami: "first" random card screen
-            //whoami: "second" wait
             if(window.localStorage.getItem('whoami') === 'first'){
                 document.getElementById('random-card').style.display = 'block';
             }
@@ -326,6 +412,8 @@ function displayGame(state) {
             console.log("Displaying SCREEN1 elements");
             break;
 
+        //whoami: "first" wait
+        //whoami: "second" pick a card 
         case GAME_STATES.SCREEN2:
             if(window.localStorage.getItem('whoami') === 'first'){
                 document.getElementById('random-card').style.display = 'none';
@@ -334,43 +422,43 @@ function displayGame(state) {
 
             else if(window.localStorage.getItem('whoami') === 'second'){
                 document.getElementById('wait').style.display = 'none';
-                document.getElementById('random-card').style.display = 'block';
+                document.getElementById('pick-a-card').style.display = 'block';
             }
-            //whoami: "first" wait
-            //whoami: "second" pick a card 
             console.log("Displaying SCREEN2 elements");
             break;
 
+        //whoami: "first" higher lower
+        //whoami: "second" wait
         case GAME_STATES.SCREEN3:
             if(window.localStorage.getItem('whoami') === 'first'){
                 document.getElementById('wait').style.display = 'none';
-                document.getElementById('random-card').style.display = 'block';
+                document.getElementById('higher-lower').style.display = 'block';
             }
 
             else if(window.localStorage.getItem('whoami') === 'second'){
-                document.getElementById('random-card').style.display = 'none';
+                document.getElementById('pick-a-card').style.display = 'none';
                 document.getElementById('wait').style.display = 'block';
             }
-            //whoami: "first" higher lower
-            //whoami: "second" wait
             console.log("Displaying SCREEN3 elements");
             break;
-
+            
+        //whoami: "first" wait
+        //whoami: "second" pick a card 
         case GAME_STATES.SCREEN4:
             if(window.localStorage.getItem('whoami') === 'first'){
-                document.getElementById('random-card').style.display = 'none';
+                document.getElementById('higher-lower').style.display = 'none';
                 document.getElementById('wait').style.display = 'block';
             }
 
             else if(window.localStorage.getItem('whoami') === 'second'){
                 document.getElementById('wait').style.display = 'none';
-                document.getElementById('random-card').style.display = 'block';
+                document.getElementById('pick-a-card').style.display = 'block';
             }
-            //whoami: "first" wait
-            //whoami: "second" pick a card 
             console.log("Displaying SCREEN4 elements");
             break;
 
+        //Finish
+        //Both player see the cards and a guessed or not guessed screen
         case GAME_STATES.FINISHED:
             if(window.localStorage.getItem('whoami') === 'first'){
                 document.getElementById('wait').style.display = 'none';
@@ -378,11 +466,9 @@ function displayGame(state) {
             }
 
             else if(window.localStorage.getItem('whoami') === 'second'){
-                document.getElementById('wait').style.display = 'none';
+                document.getElementById('pick-a-card').style.display = 'none';
                 document.getElementById('finished').style.display = 'block';
             }
-            // Finish
-            //Card is guessed or Card is not guessed
             console.log("Game Finished. Display final screen.");
             break;
     }

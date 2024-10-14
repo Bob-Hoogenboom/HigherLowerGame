@@ -234,4 +234,13 @@ img {
     image-rendering: pixelated;
 }
 
+#card-selection img {
+    width: 75px;
+    height: auto;
+    margin: 3px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
 
